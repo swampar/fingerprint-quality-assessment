@@ -1,13 +1,11 @@
 import cv2
+import numpy as np
 
 
 # ---------------------------------
 # Blur Detection
 # ---------------------------------
 def check_blur(image_path):
-    """
-    Check whether the image is blurry using Laplacian Variance.
-    """
 
     image = cv2.imread(image_path)
 
@@ -28,9 +26,6 @@ def check_blur(image_path):
 # Brightness Detection
 # ---------------------------------
 def check_brightness(image_path):
-    """
-    Check whether the image is too dark or too bright.
-    """
 
     image = cv2.imread(image_path)
 
@@ -52,9 +47,6 @@ def check_brightness(image_path):
 # Glare Detection
 # ---------------------------------
 def check_glare(image_path):
-    """
-    Detect glare (overexposed white pixels).
-    """
 
     image = cv2.imread(image_path)
 
@@ -75,44 +67,65 @@ def check_glare(image_path):
     }
 
 
+# ---------------------------------
+# ROI Detection
+# ---------------------------------
+def check_roi(image_path):
+
+    image = cv2.imread(image_path)
+
+    if image is None:
+        raise FileNotFoundError(f"Cannot load image: {image_path}")
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Binary threshold
+    _, binary = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+
+    white_pixels = cv2.countNonZero(binary)
+
+    total_pixels = gray.shape[0] * gray.shape[1]
+
+    roi_fraction = white_pixels / total_pixels
+
+    return {
+        "roi_fraction": round(float(roi_fraction), 4),
+        "roi_complete": roi_fraction > 0.15
+    }
+
+
 # =================================
 # MAIN PROGRAM
 # =================================
+
 if __name__ == "__main__":
 
     image_path = "images/sample.jpg"
 
-    # Run all quality checks
-    blur_result = check_blur(image_path)
-    brightness_result = check_brightness(image_path)
-    glare_result = check_glare(image_path)
+    blur = check_blur(image_path)
+    brightness = check_brightness(image_path)
+    glare = check_glare(image_path)
+    roi = check_roi(image_path)
 
-    # Display Report
     print("\n========== Fingerprint Quality Report ==========\n")
 
     # Blur
     print("1. Blur Detection")
     print("----------------------------")
-    print(f"Blur Score : {blur_result['blur_score']}")
-
-    if blur_result["is_blurry"]:
-        print("Status     : ❌ Blurry")
-    else:
-        print("Status     : ✅ Sharp")
+    print("Blur Score :", blur["blur_score"])
+    print("Status     :", "❌ Blurry" if blur["is_blurry"] else "✅ Sharp")
 
     print()
 
     # Brightness
     print("2. Brightness Detection")
     print("----------------------------")
-    print(f"Brightness : {brightness_result['brightness']}")
+    print("Brightness :", brightness["brightness"])
 
-    if brightness_result["too_dark"]:
+    if brightness["too_dark"]:
         print("Status     : ❌ Too Dark")
-
-    elif brightness_result["too_bright"]:
+    elif brightness["too_bright"]:
         print("Status     : ❌ Too Bright")
-
     else:
         print("Status     : ✅ Good Brightness")
 
@@ -121,11 +134,15 @@ if __name__ == "__main__":
     # Glare
     print("3. Glare Detection")
     print("----------------------------")
-    print(f"Glare Fraction : {glare_result['glare_fraction']}")
+    print("Glare Fraction :", glare["glare_fraction"])
+    print("Status          :", "❌ Glare Detected" if glare["has_glare"] else "✅ No Glare")
 
-    if glare_result["has_glare"]:
-        print("Status         : ❌ Glare Detected")
-    else:
-        print("Status         : ✅ No Glare")
+    print()
+
+    # ROI
+    print("4. ROI Detection")
+    print("----------------------------")
+    print("ROI Fraction :", roi["roi_fraction"])
+    print("Status       :", "✅ Finger Detected" if roi["roi_complete"] else "❌ Finger Too Small")
 
     print("\n===============================================\n")
