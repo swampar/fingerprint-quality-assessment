@@ -79,7 +79,6 @@ def check_roi(image_path):
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Binary threshold
     _, binary = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
 
     white_pixels = cv2.countNonZero(binary)
@@ -94,6 +93,30 @@ def check_roi(image_path):
     }
 
 
+# ---------------------------------
+# Ridge Clarity Detection
+# ---------------------------------
+def check_ridge_clarity(image_path):
+
+    image = cv2.imread(image_path)
+
+    if image is None:
+        raise FileNotFoundError(f"Cannot load image: {image_path}")
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    edges = cv2.Canny(gray, 50, 150)
+
+    edge_pixels = cv2.countNonZero(edges)
+
+    total_pixels = gray.shape[0] * gray.shape[1]
+
+    ridge_score = edge_pixels / total_pixels
+
+    return {
+        "ridge_score": round(float(ridge_score), 4),
+        "clear_ridges": ridge_score > 0.03
+    }
 # =================================
 # MAIN PROGRAM
 # =================================
@@ -106,6 +129,18 @@ if __name__ == "__main__":
     brightness = check_brightness(image_path)
     glare = check_glare(image_path)
     roi = check_roi(image_path)
+    ridge = check_ridge_clarity(image_path)
+
+print()
+
+print("5. Ridge Clarity")
+print("----------------------------")
+print("Ridge Score :", ridge["ridge_score"])
+
+if ridge["clear_ridges"]:
+    print("Status       : ✅ Clear Ridges")
+else:
+    print("Status       : ❌ Poor Ridge Quality")
 
     print("\n========== Fingerprint Quality Report ==========\n")
 
@@ -146,3 +181,10 @@ if __name__ == "__main__":
     print("Status       :", "✅ Finger Detected" if roi["roi_complete"] else "❌ Finger Too Small")
 
     print("\n===============================================\n")
+
+    print()
+
+    print("5. Ridge Clarity")
+    print("----------------------------")
+    print("Ridge Score :", ridge["ridge_score"])
+    print("Status       :", "✅ Clear Ridges" if ridge["clear_ridges"] else "❌ Poor Ridge Quality")
