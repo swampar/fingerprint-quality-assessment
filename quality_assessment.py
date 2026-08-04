@@ -1,13 +1,22 @@
 import cv2
 
-image = cv2.imread("images/sample.jpg")
+def check_blur(image_path):
+    image = cv2.imread(image_path)
 
-if image is None:
-    print("Image not found!")
-else:
-    print("Image loaded successfully!")
-    print("Image Shape:", image.shape)
+    if image is None:
+        print("Image not found!")
+        return
 
-    cv2.imshow("Fingerprint", image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
+
+    print(f"Blur Score: {blur_score:.2f}")
+
+    if blur_score < 10:
+        print("❌ Image is Blurry")
+    else:
+        print("✅ Image is Sharp")
+
+
+check_blur("images/sample.jpg")
