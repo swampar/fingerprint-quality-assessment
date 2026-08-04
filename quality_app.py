@@ -12,15 +12,32 @@ st.set_page_config(page_title="Fingerprint Quality Assessment")
 
 st.title("Fingerprint Quality Assessment")
 
-uploaded_file = st.file_uploader(
-    "Upload Fingerprint Image",
-    type=["jpg", "jpeg", "png"]
+option = st.radio(
+    "Choose Input Method",
+    ["Upload Image", "Camera"]
 )
 
-if uploaded_file is not None:
+if option == "Upload Image":
+    uploaded_file = st.file_uploader(
+        "Upload Fingerprint Image",
+        type=["jpg", "jpeg", "png"]
+    )
+    camera_image = None
+
+else:
+    camera_image = st.camera_input("Capture Fingerprint")
+    uploaded_file = None
+
+if uploaded_file is not None or camera_image is not None:
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-        tmp.write(uploaded_file.read())
+
+        if uploaded_file is not None:
+            tmp.write(uploaded_file.read())
+
+        else:
+            tmp.write(camera_image.getvalue())
+
         image_path = tmp.name
 
     st.image(image_path, caption="Uploaded Image", use_container_width=True)
