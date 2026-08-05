@@ -33,3 +33,20 @@ python quality_assessment.py
 ```bash
 python -m streamlit run quality_app.py
 ```
+## Application Screenshots
+
+### Home Page
+
+![Home](screenshots/home.png)
+
+### Upload Fingerprint
+
+![Upload](screenshots/upload.png)
+
+### Results
+
+![Results](screenshots/results.png)
+
+### Camera Capture (Bonus)
+
+![Camera](screenshots/camera.png)
