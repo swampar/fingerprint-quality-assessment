@@ -33,3 +33,15 @@ python quality_assessment.py
 ```bash
 python -m streamlit run quality_app.py
 ```
+
+# Fingerprint Quality Assessment
+
+## Live Demo
+
+🔗 Streamlit Application:
+https://fingerprint-quality-assessment-rjjslsanb7pajb8qvrkz2u.streamlit.app
+
+## Source Code
+
+🔗 GitHub Repository:
+https://github.com/swampar/fingerprint-quality-assessment
